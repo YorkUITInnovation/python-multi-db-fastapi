@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troubleshooting - YorkU Multi-DB API</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo"><h2>📚 API Guide</h2></div>
+        <ul class="nav-menu">
+            <li><a href="index.html">🏠 Home</a></li>
+            <li><a href="getting-started.html">🚀 Getting Started</a></li>
+            <li><a href="endpoints.html">🔌 Endpoints</a></li>
+            <li><a href="examples.html">💡 Examples</a></li>
+            <li><a href="security.html">🔒 Security</a></li>
+            <li><a href="troubleshooting.html" class="active">🔧 Troubleshooting</a></li>
+            <li><a href="faq.html">❓ FAQ</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <header>
+            <h1>🔧 Troubleshooting</h1>
+            <p class="subtitle">Solutions to common issues</p>
+        </header>
+
+        <section>
+            <h2>Common Errors</h2>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border-left: 4px solid #ef4444;">
+                <h3>❌ Error: Invalid or missing API key</h3>
+                <p><strong>Cause:</strong> API key not provided or incorrect</p>
+                <p><strong>Solution:</strong></p>
+                <ul style="color: #6b7280; margin-left: 2rem;">
+                    <li>Check that you're sending the <code class="code-inline">X-API-KEY</code> header</li>
+                    <li>Verify the API key is correct (no extra spaces)</li>
+                    <li>Contact your administrator if the key doesn't work</li>
+                </ul>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border-left: 4px solid #ef4444;">
+                <h3>❌ Error: No record found</h3>
+                <p><strong>Cause:</strong> The search parameters didn't match any records</p>
+                <p><strong>Solution:</strong></p>
+                <ul style="color: #6b7280; margin-left: 2rem;">
+                    <li>Double-check your search parameters</li>
+                    <li>Verify the table name is correct</li>
+                    <li>Check if the record actually exists in the database</li>
+                </ul>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border-left: 4px solid #ef4444;">
+                <h3>❌ Error: Multiple records found</h3>
+                <p><strong>Cause:</strong> More than one record matched your search (getRecord expects exactly one)</p>
+                <p><strong>Solution:</strong></p>
+                <ul style="color: #6b7280; margin-left: 2rem;">
+                    <li>Add more specific search parameters</li>
+                    <li>Or use <code class="code-inline">sqlExec</code> to handle multiple results</li>
+                </ul>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border-left: 4px solid #ef4444;">
+                <h3>❌ Error: WHERE conditions cannot be empty</h3>
+                <p><strong>Cause:</strong> Trying to update or delete without specifying which records</p>
+                <p><strong>Solution:</strong></p>
+                <ul style="color: #6b7280; margin-left: 2rem;">
+                    <li>Always include a <code class="code-inline">where</code> parameter</li>
+                    <li>This is a safety feature to prevent accidental mass operations</li>
+                </ul>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border-left: 4px solid #ef4444;">
+                <h3>❌ Error: Connection refused</h3>
+                <p><strong>Cause:</strong> Can't connect to the API server</p>
+                <p><strong>Solution:</strong></p>
+                <ul style="color: #6b7280; margin-left: 2rem;">
+                    <li>Verify the server URL is correct</li>
+                    <li>Check if the API server is running</li>
+                    <li>Test with the health check: <code class="code-inline">http://localhost:8082/health</code></li>
+                </ul>
+            </div>
+        </section>
+
+        <section style="margin-top: 3rem;">
+            <h2>Testing Checklist</h2>
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem;">
+                <ol style="color: #6b7280; margin-left: 1.5rem;">
+                    <li style="margin-bottom: 1rem;">
+                        <strong>Test the health check</strong><br>
+                        <code class="code-inline">curl http://localhost:8082/health</code>
+                    </li>
+                    <li style="margin-bottom: 1rem;">
+                        <strong>Test authentication</strong><br>
+                        <code class="code-inline">curl http://localhost:8082/connections -H "X-API-KEY: your_key"</code>
+                    </li>
+                    <li style="margin-bottom: 1rem;">
+                        <strong>Verify your table and field names</strong><br>
+                        Check database schema or ask your administrator
+                    </li>
+                    <li style="margin-bottom: 1rem;">
+                        <strong>Test with simple queries first</strong><br>
+                        Start with basic get operations before complex ones
+                    </li>
+                    <li>
+                        <strong>Check the response for error messages</strong><br>
+                        Error responses include helpful details about what went wrong
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <section style="margin-top: 3rem;">
+            <h2>Need More Help?</h2>
+            <div class="alert alert-info">
+                <strong>Resources:</strong>
+                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                    <li>Check the <a href="faq.html">FAQ page</a> for quick answers</li>
+                    <li>Review <a href="examples.html">Examples</a> for working code</li>
+                    <li>Contact your system administrator for server-specific issues</li>
+                    <li>Use the interactive docs at <a href="http://localhost:8082/docs" target="_blank">http://localhost:8082/docs</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2024 York University. Multi-Database REST API User Guide</p>
+        </footer>
+    </main>
+</body>
+</html>
+

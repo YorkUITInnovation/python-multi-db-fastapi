@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - YorkU Multi-DB API</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo"><h2>📚 API Guide</h2></div>
+        <ul class="nav-menu">
+            <li><a href="index.html">🏠 Home</a></li>
+            <li><a href="getting-started.html">🚀 Getting Started</a></li>
+            <li><a href="endpoints.html">🔌 Endpoints</a></li>
+            <li><a href="examples.html">💡 Examples</a></li>
+            <li><a href="security.html">🔒 Security</a></li>
+            <li><a href="troubleshooting.html">🔧 Troubleshooting</a></li>
+            <li><a href="faq.html" class="active">❓ FAQ</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <header>
+            <h1>❓ Frequently Asked Questions</h1>
+            <p class="subtitle">Quick answers to common questions</p>
+        </header>
+
+        <section>
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <h3>Q: Do I need to know SQL to use this API?</h3>
+                <p><strong>A:</strong> No! For basic operations (insert, get, update, delete), you just need to specify the table name and data. The API generates the SQL automatically. SQL is only needed for the <code class="code-inline">sqlExec</code> endpoint for complex queries.</p>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <h3>Q: Which databases can I connect to?</h3>
+                <p><strong>A:</strong> The API supports Oracle, MySQL, PostgreSQL, and MS SQL Server. Use the <code class="code-inline">/connections</code> endpoint to see which databases are configured on your server.</p>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <h3>Q: How do I get an API key?</h3>
+                <p><strong>A:</strong> Contact your system administrator or IT department to obtain an API key. API keys are used to authenticate your requests and track usage.</p>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <h3>Q: Can I update multiple records at once?</h3>
+                <p><strong>A:</strong> Yes! The <code class="code-inline">updateRecord</code> endpoint will update all records that match your WHERE conditions. The response tells you how many records were affected.</p>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <h3>Q: Is there a limit on how many records I can retrieve?</h3>
+                <p><strong>A:</strong> Yes. The <code class="code-inline">sqlExec</code> endpoint has a maximum page size of 300 records. Use pagination to retrieve larger datasets page by page.</p>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <h3>Q: Can I delete all records from a table?</h3>
+                <p><strong>A:</strong> No, for safety reasons. The <code class="code-inline">deleteRecord</code> endpoint requires a WHERE clause to prevent accidental mass deletions.</p>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <h3>Q: What format should dates be in?</h3>
+                <p><strong>A:</strong> Send dates as strings in ISO format: "YYYY-MM-DD" (e.g., "2024-12-06"). For timestamps, use "YYYY-MM-DD HH:MM:SS".</p>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <h3>Q: How do I know which server to use?</h3>
+                <p><strong>A:</strong> Use the <code class="code-inline">/connections</code> endpoint to see all available servers. If only one server is configured for a database type, you can leave the server parameter blank.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2024 York University. Multi-Database REST API User Guide</p>
+        </footer>
+    </main>
+</body>
+</html>
+

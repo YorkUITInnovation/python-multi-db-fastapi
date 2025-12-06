@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security - YorkU Multi-DB API</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo"><h2>📚 API Guide</h2></div>
+        <ul class="nav-menu">
+            <li><a href="index.html">🏠 Home</a></li>
+            <li><a href="getting-started.html">🚀 Getting Started</a></li>
+            <li><a href="endpoints.html">🔌 Endpoints</a></li>
+            <li><a href="examples.html">💡 Examples</a></li>
+            <li><a href="security.html" class="active">🔒 Security</a></li>
+            <li><a href="troubleshooting.html">🔧 Troubleshooting</a></li>
+            <li><a href="faq.html">❓ FAQ</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <header>
+            <h1>🔒 Security Best Practices</h1>
+            <p class="subtitle">Keep your data safe</p>
+        </header>
+
+        <section>
+            <h2>API Key Security</h2>
+            <div class="alert alert-danger">
+                <strong>⚠️ Never share your API key publicly!</strong> Treat it like a password.
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h3>✓ DO:</h3>
+                <ul style="color: #065f46; margin-left: 2rem;">
+                    <li>Store API keys in environment variables or secure configuration files</li>
+                    <li>Use different API keys for development and production</li>
+                    <li>Rotate API keys regularly</li>
+                    <li>Revoke compromised keys immediately</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem;">✗ DON'T:</h3>
+                <ul style="color: #991b1b; margin-left: 2rem;">
+                    <li>Commit API keys to version control (Git, SVN, etc.)</li>
+                    <li>Share API keys via email or chat</li>
+                    <li>Hard-code API keys in your application source code</li>
+                    <li>Use the same API key for multiple applications</li>
+                </ul>
+            </div>
+        </section>
+
+        <section style="margin-top: 3rem;">
+            <h2>Built-in Security Features</h2>
+            <div class="security-grid">
+                <div class="security-item">
+                    <strong>SQL Injection Protection</strong>
+                    <p>All queries use parameterized statements to prevent SQL injection attacks.</p>
+                </div>
+                <div class="security-item">
+                    <strong>Required WHERE Clauses</strong>
+                    <p>Update and delete operations require WHERE conditions to prevent accidental mass changes.</p>
+                </div>
+                <div class="security-item">
+                    <strong>Transaction Rollback</strong>
+                    <p>Failed operations automatically rollback to prevent partial updates.</p>
+                </div>
+                <div class="security-item">
+                    <strong>Password Masking</strong>
+                    <p>The /connections endpoint hides database passwords.</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="margin-top: 3rem;">
+            <h2>Safe Deletion Practices</h2>
+            <div class="alert alert-warning">
+                <strong>Consider "soft deletes" instead of permanent deletion!</strong> Set a status flag like <code style="background: none; color: inherit;">deleted=true</code> instead of actually deleting records.
+            </div>
+
+            <h3 style="margin-top: 1.5rem;">Why Soft Deletes?</h3>
+            <ul style="color: #6b7280; margin-left: 2rem;">
+                <li>Records can be recovered if deleted by mistake</li>
+                <li>Maintains data history and audit trails</li>
+                <li>Doesn't break foreign key relationships</li>
+                <li>Easier compliance with data regulations</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>&copy; 2024 York University. Multi-Database REST API User Guide</p>
+        </footer>
+    </main>
+</body>
+</html>
+

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YorkU Multi-DB API - User Guide</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">
+            <h2>📚 API Guide</h2>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="index.html" class="active">🏠 Home</a></li>
+            <li><a href="getting-started.html">🚀 Getting Started</a></li>
+            <li><a href="endpoints.html">🔌 Endpoints</a></li>
+            <li><a href="examples.html">💡 Examples</a></li>
+            <li><a href="security.html">🔒 Security</a></li>
+            <li><a href="troubleshooting.html">🔧 Troubleshooting</a></li>
+            <li><a href="faq.html">❓ FAQ</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <header>
+            <h1>🎉 YorkU Multi-Database REST API</h1>
+            <p class="subtitle">Complete CRUD Operations Across Multiple Databases</p>
+        </header>
+
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Welcome to the API User Guide</h2>
+                <p>This comprehensive guide will help you understand and use the YorkU Multi-Database REST API, whether you're a developer or a non-technical user.</p>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>✨ What Can This API Do?</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Create Records</h3>
+                    <p>Insert new data into any database table with a simple request</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Read Data</h3>
+                    <p>Retrieve specific records or query custom data with pagination</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✏️</div>
+                    <h3>Update Records</h3>
+                    <p>Modify existing data safely with automatic WHERE clause protection</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🗑️</div>
+                    <h3>Delete Records</h3>
+                    <p>Remove records with built-in safety to prevent accidental mass deletions</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="databases">
+            <h2>🎨 Supported Databases</h2>
+            <div class="db-grid">
+                <div class="db-card">
+                    <h3>Oracle</h3>
+                    <p>✅ Full support with Instant Client 21.15</p>
+                </div>
+                <div class="db-card">
+                    <h3>MySQL</h3>
+                    <p>✅ Complete compatibility with last_insert_id</p>
+                </div>
+                <div class="db-card">
+                    <h3>PostgreSQL</h3>
+                    <p>✅ Full support with all features</p>
+                </div>
+                <div class="db-card">
+                    <h3>MS SQL Server</h3>
+                    <p>✅ ODBC Driver 17 support</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="endpoints-overview">
+            <h2>🔌 Available Endpoints</h2>
+            <table class="endpoints-table">
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Method</th>
+                        <th>Purpose</th>
+                        <th>Difficulty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/health</code></td>
+                        <td><span class="method-get">GET</span></td>
+                        <td>Check if API is running</td>
+                        <td><span class="difficulty-easy">Easy</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>/connections</code></td>
+                        <td><span class="method-get">GET</span></td>
+                        <td>List available database connections</td>
+                        <td><span class="difficulty-easy">Easy</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>/insertRecord</code></td>
+                        <td><span class="method-post">POST</span></td>
+                        <td>Create new records</td>
+                        <td><span class="difficulty-medium">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>/getRecord</code></td>
+                        <td><span class="method-post">POST</span></td>
+                        <td>Retrieve a single record</td>
+                        <td><span class="difficulty-medium">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>/updateRecord</code></td>
+                        <td><span class="method-post">POST</span></td>
+                        <td>Update existing records</td>
+                        <td><span class="difficulty-medium">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>/deleteRecord</code></td>
+                        <td><span class="method-post">POST</span></td>
+                        <td>Delete records</td>
+                        <td><span class="difficulty-medium">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td><code>/sqlExec</code></td>
+                        <td><span class="method-post">POST</span></td>
+                        <td>Execute custom SQL queries</td>
+                        <td><span class="difficulty-advanced">Advanced</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="quick-start">
+            <h2>🚀 Quick Start</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Get Your API Key</h3>
+                        <p>Contact your system administrator to obtain an API key for authentication.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Choose Your Tool</h3>
+                        <p>Use any HTTP client (browser, Postman, curl, or code) to make requests.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Make Your First Request</h3>
+                        <p>Start with the health check endpoint to verify everything works.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Explore & Create</h3>
+                        <p>Use the connections endpoint to see available databases, then start creating!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="security-notice">
+            <h2>🔒 Security Features</h2>
+            <div class="security-grid">
+                <div class="security-item">
+                    <strong>✓ SQL Injection Protection</strong>
+                    <p>All queries use parameterized statements</p>
+                </div>
+                <div class="security-item">
+                    <strong>✓ API Key Authentication</strong>
+                    <p>Every request requires a valid key</p>
+                </div>
+                <div class="security-item">
+                    <strong>✓ WHERE Clause Required</strong>
+                    <p>Update and delete operations require conditions</p>
+                </div>
+                <div class="security-item">
+                    <strong>✓ Transaction Safety</strong>
+                    <p>Failed operations rollback automatically</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="next-steps">
+            <h2>📖 What's Next?</h2>
+            <div class="next-steps-grid">
+                <a href="getting-started.html" class="next-step-card">
+                    <h3>🚀 Getting Started</h3>
+                    <p>Learn how to set up and make your first request</p>
+                </a>
+                <a href="endpoints.html" class="next-step-card">
+                    <h3>🔌 Explore Endpoints</h3>
+                    <p>Detailed documentation for each API endpoint</p>
+                </a>
+                <a href="examples.html" class="next-step-card">
+                    <h3>💡 See Examples</h3>
+                    <p>Real-world examples for common use cases</p>
+                </a>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2024 York University. Multi-Database REST API User Guide</p>
+            <p>Server: <code>http://localhost:8082</code></p>
+        </footer>
+    </main>
+</body>
+</html>
+
