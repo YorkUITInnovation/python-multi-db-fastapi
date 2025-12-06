@@ -17,11 +17,16 @@ class MSSQLDB:
         self.conn = pyodbc.connect(conn_str)
         return self.conn
 
-    def query(self, sql: str, params: Tuple = ()) -> List[Dict[str, Any]]:
+    def query(self, sql: str, params: Tuple | Dict[str, Any] = ()) -> List[Dict[str, Any]]:
         if self.conn is None:
             self.connect()
         cur = self.conn.cursor()
-        cur.execute(sql, params)
+        # pyodbc supports positional parameters (?)
+        # For named parameters, we need to convert dict to tuple in the right order
+        if params:
+            cur.execute(sql, params)
+        else:
+            cur.execute(sql)
         cols = [desc[0] for desc in cur.description]
         rows = [dict(zip(cols, r)) for r in cur.fetchall()]
         cur.close()

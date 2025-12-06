@@ -71,14 +71,19 @@ class OracleDB:
             logger.error(f"Config (masked): user={self.config.get('user')}, has_password={bool(self.config.get('password'))}, has_dsn={bool(self.config.get('dsn'))}")
             raise RuntimeError(f"Oracle connection failed: {e}") from e
 
-    def query(self, sql: str, params: Tuple = ()) -> List[Dict[str, Any]]:
+    def query(self, sql: str, params: Tuple | Dict[str, Any] = ()) -> List[Dict[str, Any]]:
         try:
             if self.conn is None:
                 logger.info("No existing connection, connecting to Oracle...")
                 self.connect()
             logger.debug(f"Executing query: {sql}")
+            logger.debug(f"Parameters: {params}")
             cur = self.conn.cursor()
-            cur.execute(sql, params)
+            # Oracle supports both positional (tuple) and named (dict) parameters
+            if params:
+                cur.execute(sql, params)
+            else:
+                cur.execute(sql)
             cols = [d[0] for d in cur.description]
             rows = [dict(zip(cols, r)) for r in cur.fetchall()]
             cur.close()
