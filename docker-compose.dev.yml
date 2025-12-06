@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: yorku-multi-db-api-dev
+    ports:
+      - "8082:8082"
+    volumes:
+      # Map local .env file
+      - ./.env:/app/.env:ro
+      # Mount entire app directory for hot-reload during development
+      - ./app:/app/app
+      # Mount logs
+      - ./logs:/app/logs
+    environment:
+      - APP_MODE=DEV
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - app-network
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8082", "--reload"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  app-network:
+    driver: bridge
+

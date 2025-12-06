@@ -1,0 +1,102 @@
+# build.config.example
+#
+# This is an example configuration file for build.sh
+# Copy this file to build.config and customize it
+#
+# Usage: Copy and edit the main build.sh script, or
+#        source this file in your own build script
+
+# ============================================================================
+# Docker Hub Configuration
+# ============================================================================
+
+# Your Docker Hub username (REQUIRED)
+DOCKER_USERNAME="your-dockerhub-username"
+
+# Image name (will create: username/image-name)
+IMAGE_NAME="yorku-multi-db-api"
+
+# ============================================================================
+# Versioning
+# ============================================================================
+
+# Primary tag
+IMAGE_TAG="latest"
+
+# Additional tags (space-separated)
+# Examples:
+#   "v1.0.0"
+#   "v1.0.0 v1.0 v1"
+#   "v1.0.0 latest stable"
+ADDITIONAL_TAGS=""
+
+# ============================================================================
+# Platform Selection
+# ============================================================================
+
+# Platforms to build for (space-separated)
+#
+# Common options:
+#   linux/amd64          - 64-bit x86 (Intel/AMD) - most servers
+#   linux/arm64          - 64-bit ARM - Apple M1/M2, AWS Graviton, Pi 4
+#   linux/arm/v7         - 32-bit ARM - Raspberry Pi 3, older devices
+#   linux/386            - 32-bit x86 - legacy systems (rarely needed)
+#
+# Recommended combinations:
+#   For production:    "linux/amd64 linux/arm64"
+#   For maximum reach: "linux/amd64 linux/arm64 linux/arm/v7"
+#   For testing:       "linux/amd64"
+#   For ARM only:      "linux/arm64 linux/arm/v7"
+
+PLATFORMS="linux/amd64 linux/arm64"
+
+# ============================================================================
+# Build Configuration
+# ============================================================================
+
+# Dockerfile to use
+DOCKERFILE="Dockerfile"
+
+# Build context directory
+BUILD_CONTEXT="."
+
+# Push to Docker Hub (true/false)
+# Set to false for local testing, true for publishing
+PUSH_TO_HUB=true
+
+# ============================================================================
+# Example Configurations
+# ============================================================================
+
+# Example 1: Development Build (local testing, single platform)
+# DOCKER_USERNAME="myusername"
+# IMAGE_NAME="yorku-multi-db-api"
+# IMAGE_TAG="dev"
+# ADDITIONAL_TAGS=""
+# PLATFORMS="linux/amd64"
+# PUSH_TO_HUB=false
+
+# Example 2: Release Build (production, multi-platform)
+# DOCKER_USERNAME="mycompany"
+# IMAGE_NAME="yorku-multi-db-api"
+# IMAGE_TAG="1.0.0"
+# ADDITIONAL_TAGS="1.0 1 latest stable"
+# PLATFORMS="linux/amd64 linux/arm64"
+# PUSH_TO_HUB=true
+
+# Example 3: ARM-only Build (IoT devices, edge computing)
+# DOCKER_USERNAME="myusername"
+# IMAGE_NAME="yorku-multi-db-api"
+# IMAGE_TAG="arm-latest"
+# ADDITIONAL_TAGS="arm-1.0"
+# PLATFORMS="linux/arm64 linux/arm/v7"
+# PUSH_TO_HUB=true
+
+# Example 4: Beta/Testing Build
+# DOCKER_USERNAME="myusername"
+# IMAGE_NAME="yorku-multi-db-api"
+# IMAGE_TAG="beta"
+# ADDITIONAL_TAGS="1.0.0-beta.1"
+# PLATFORMS="linux/amd64 linux/arm64"
+# PUSH_TO_HUB=true
+
