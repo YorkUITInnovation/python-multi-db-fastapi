@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Endpoints - YorkU Multi-DB API</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">
+            <h2>📚 API Guide</h2>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="index.html">🏠 Home</a></li>
+            <li><a href="getting-started.html">🚀 Getting Started</a></li>
+            <li><a href="endpoints.html" class="active">🔌 Endpoints</a></li>
+            <li><a href="examples.html">💡 Examples</a></li>
+            <li><a href="security.html">🔒 Security</a></li>
+            <li><a href="troubleshooting.html">🔧 Troubleshooting</a></li>
+            <li><a href="faq.html">❓ FAQ</a></li>
+        </ul>
+    </nav>
+    <main class="content">
+        <header>
+            <h1>🔌 API Endpoints</h1>
+            <p class="subtitle">Complete reference for all available endpoints</p>
+        </header>
+        <!-- Quick Navigation -->
+        <section style="background: white; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem;">
+            <h3>Jump to:</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem;">
+                <a href="#health" style="padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 0.25rem; text-decoration: none; color: #2563eb;">Health</a>
+                <a href="#connections" style="padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 0.25rem; text-decoration: none; color: #2563eb;">Connections</a>
+                <a href="#getrecord" style="padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 0.25rem; text-decoration: none; color: #2563eb;">Get Record</a>
+                <a href="#insertrecord" style="padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 0.25rem; text-decoration: none; color: #2563eb;">Insert Record</a>
+                <a href="#updaterecord" style="padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 0.25rem; text-decoration: none; color: #2563eb;">Update Record</a>
+                <a href="#deleterecord" style="padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 0.25rem; text-decoration: none; color: #2563eb;">Delete Record</a>
+                <a href="#sqlexec" style="padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 0.25rem; text-decoration: none; color: #2563eb;">SQL Exec</a>
+            </div>
+        </section>
+        <!-- Health Endpoint -->
+        <section id="health" style="margin-bottom: 4rem;">
+            <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 2rem;">GET /health</h2>
+                <p style="margin: 0.5rem 0 0; opacity: 0.9;">Check if the API is running</p>
+            </div>
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem;">
+                <h3>Purpose</h3>
+                <p>Verify that the API server is online and responding to requests. This endpoint doesn't require authentication.</p>
+                <h3 style="margin-top: 2rem;">Request</h3>
+                <div class="code-block">curl http://localhost:8082/health</div>
+                <h3 style="margin-top: 2rem;">Response</h3>
+                <div class="code-block">{
+  "status": "ok",
+  "mode": "DEV"
+}</div>
+                <h3 style="margin-top: 2rem;">When to Use</h3>
+                <ul style="color: #6b7280; margin-left: 2rem;">
+                    <li>Testing if the API is accessible</li>
+                    <li>Monitoring system health</li>
+                    <li>Troubleshooting connection issues</li>
+                </ul>
+            </div>
+        </section>
+        <!-- Connections Endpoint -->
+        <section id="connections" style="margin-bottom: 4rem;">
+            <div style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 2rem;">GET /connections</h2>
+                <p style="margin: 0.5rem 0 0; opacity: 0.9;">List all available database connections</p>
+            </div>
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem;">
+                <h3>Purpose</h3>
+                <p>Discover which database servers are configured and available for use. Shows database types, server names, and connection details (with passwords hidden).</p>
+                <div class="alert alert-info" style="margin-top: 1rem;">
+                    <strong>Authentication Required:</strong> This endpoint requires an API key.
+                </div>
+                <h3 style="margin-top: 2rem;">Request</h3>
+                <div class="code-block">curl http://localhost:8082/connections \
+  -H "X-API-KEY: your_api_key"</div>
+                <h3 style="margin-top: 2rem;">Response Fields</h3>
+                <table>
+                    <tr>
+                        <th>Field</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code class="code-inline">summary.total_connections</code></td>
+                        <td>Total number of database connections</td>
+                    </tr>
+                    <tr>
+                        <td><code class="code-inline">summary.by_type</code></td>
+                        <td>Count of connections per database type</td>
+                    </tr>
+                    <tr>
+                        <td><code class="code-inline">connections</code></td>
+                        <td>Detailed info for each connection</td>
+                    </tr>
+                </table>
+                <h3 style="margin-top: 2rem;">When to Use</h3>
+                <ul style="color: #6b7280; margin-left: 2rem;">
+                    <li>Finding out which databases are available</li>
+                    <li>Getting server names for your requests</li>
+                    <li>Verifying database configurations</li>
+                </ul>
+            </div>
+        </section>
+        <!-- Get Record Endpoint -->
+        <section id="getrecord" style="margin-bottom: 4rem;">
+            <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 2rem;">POST /getRecord</h2>
+                <p style="margin: 0.5rem 0 0; opacity: 0.9;">Retrieve a single record from any database</p>
+            </div>
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem;">
+                <h3>Purpose</h3>
+                <p>Fetch exactly one record from a database table. Returns an error if zero or multiple records are found.</p>
+                <h3 style="margin-top: 2rem;">Required Parameters</h3>
+                <table>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code class="code-inline">dbtype</code></td>
+                        <td>string</td>
+                        <td>oracle, mysql, postgres, or mssql</td>
+                    </tr>
+                    <tr>
+                        <td><code class="code-inline">table</code></td>
+                        <td>string</td>
+                        <td>Table name to query</td>
+                    </tr>
+                    <tr>
+                        <td><code class="code-inline">parameters</code></td>
+                        <td>object</td>
+                        <td>Search conditions (e.g., {"user_id": 12345})</td>
+                    </tr>
+                </table>
+                <h3 style="margin-top: 2rem;">Optional Parameters</h3>
+                <table>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code class="code-inline">server</code></td>
+                        <td>Server name (leave blank if only one configured)</td>
+                    </tr>
+                    <tr>
+                        <td><code class="code-inline">fields</code></td>
+                        <td>Comma-separated field names (default: all fields)</td>
+                    </tr>
+                </table>
+                <h3 style="margin-top: 2rem;">Example Request</h3>
+                <div class="code-block">curl -X POST http://localhost:8082/getRecord \
+  -H "X-API-KEY: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dbtype": "mysql",
+    "table": "users",
+    "parameters": {"user_id": 12345},
+    "fields": "user_id,username,email"
+  }'</div>
+                <h3 style="margin-top: 2rem;">Success Response</h3>
+                <div class="code-block">{
+  "status": "success",
+  "dbtype": "mysql",
+  "server": "default",
+  "table": "users",
+  "record": {
+    "user_id": 12345,
+    "username": "johndoe",
+    "email": "john@example.com"
+  }
+}</div>
+                <div class="alert alert-warning" style="margin-top: 1rem;">
+                    <strong>Important:</strong> This endpoint returns an error if:
+                    <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                        <li>No record is found</li>
+                        <li>Multiple records match your criteria</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <footer>
+            <p>&copy; 2024 York University. Multi-Database REST API User Guide</p>
+        </footer>
+    </main>
+</body>
+</html>

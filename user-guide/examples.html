@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - YorkU Multi-DB API</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo"><h2>📚 API Guide</h2></div>
+        <ul class="nav-menu">
+            <li><a href="index.html">🏠 Home</a></li>
+            <li><a href="getting-started.html">🚀 Getting Started</a></li>
+            <li><a href="endpoints.html">🔌 Endpoints</a></li>
+            <li><a href="examples.html" class="active">💡 Examples</a></li>
+            <li><a href="security.html">🔒 Security</a></li>
+            <li><a href="troubleshooting.html">🔧 Troubleshooting</a></li>
+            <li><a href="faq.html">❓ FAQ</a></li>
+        </ul>
+    </nav>
+    <main class="content">
+        <header>
+            <h1>💡 Examples</h1>
+            <p class="subtitle">Copy-paste ready examples for common tasks</p>
+        </header>
+        <section>
+            <h2>Example 1: Creating a New User</h2>
+            <p>Insert a new user record into the database:</p>
+            <div class="code-block">curl -X POST http://localhost:8082/insertRecord \
+  -H "X-API-KEY: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dbtype": "mysql",
+    "table": "users",
+    "data": {
+      "username": "alice_smith",
+      "email": "alice@example.com",
+      "firstname": "Alice",
+      "lastname": "Smith",
+      "created_date": "2024-12-06"
+    }
+  }'</div>
+        </section>
+        <section style="margin-top: 3rem;">
+            <h2>Example 2: Finding a User by Email</h2>
+            <div class="code-block">curl -X POST http://localhost:8082/getRecord \
+  -H "X-API-KEY: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dbtype": "mysql",
+    "table": "users",
+    "parameters": {"email": "alice@example.com"}
+  }'</div>
+        </section>
+        <section style="margin-top: 3rem;">
+            <h2>Example 3: Updating User Status</h2>
+            <div class="code-block">curl -X POST http://localhost:8082/updateRecord \
+  -H "X-API-KEY: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dbtype": "mysql",
+    "table": "users",
+    "data": {"status": "active", "verified": true},
+    "where": {"email": "alice@example.com"}
+  }'</div>
+        </section>
+        <section style="margin-top: 3rem;">
+            <h2>Example 4: Paginated Query</h2>
+            <p>Get the first 50 active users:</p>
+            <div class="code-block">curl -X POST http://localhost:8082/sqlExec \
+  -H "X-API-KEY: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dbtype": "mysql",
+    "sql": "SELECT * FROM users WHERE status = :status ORDER BY created_date DESC",
+    "parameters": {"status": "active"},
+    "page": 1,
+    "page_size": 50
+  }'</div>
+        </section>
+        <footer>
+            <p>&copy; 2024 York University. Multi-Database REST API User Guide</p>
+        </footer>
+    </main>
+</body>
+</html>
