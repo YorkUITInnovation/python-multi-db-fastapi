@@ -2,7 +2,12 @@ from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
-from .config import APP_MODE, get_mysql_config, get_pg_config, get_oracle_config, get_mssql_config
+from .config import (
+    APP_MODE,
+    get_mysql_config, get_pg_config, get_oracle_config, get_mssql_config,
+    MYSQL_CONFIGS, PG_CONFIGS, ORACLE_CONFIGS, MSSQL_CONFIGS,
+    MYSQL_CONFIG, PG_CONFIG, ORACLE_CONFIG, MSSQL_CONFIG
+)
 from .auth import verify_api_key
 from .db_mysql import MySQLDB
 from .db_postgres import PostgresDB
@@ -29,6 +34,128 @@ app.add_middleware(
 @app.get("/health")
 async def health():
     return {"status": "ok", "mode": APP_MODE}
+
+@app.get("/connections")
+async def list_connections(_: bool = Depends(verify_api_key)):
+    """
+    List all available database connections configured on the server.
+
+    Returns information about all configured database servers including:
+    - Database type
+    - Server name/identifier
+    - Connection details (without sensitive data like passwords)
+    - Whether it's the default connection
+
+    This endpoint helps developers discover which database connections are available
+    for use with the getRecord and sqlExec endpoints.
+    """
+
+    connections = {
+        "oracle": {},
+        "mysql": {},
+        "postgres": {},
+        "mssql": {}
+    }
+
+    # Helper function to mask sensitive data
+    def mask_config(config: Dict[str, Any]) -> Dict[str, Any]:
+        """Return config with sensitive fields masked"""
+        masked = config.copy()
+        if "password" in masked:
+            masked["password"] = "***HIDDEN***"
+        return masked
+
+    # Oracle connections
+    if ORACLE_CONFIGS:
+        for name, config in ORACLE_CONFIGS.items():
+            connections["oracle"][name] = {
+                "name": name,
+                "type": "oracle",
+                "config": mask_config(config),
+                "is_default": False
+            }
+    # Check if default Oracle config is set
+    if ORACLE_CONFIG.get("host") or ORACLE_CONFIG.get("dsn"):
+        connections["oracle"]["default"] = {
+            "name": "default",
+            "type": "oracle",
+            "config": mask_config(ORACLE_CONFIG),
+            "is_default": True
+        }
+
+    # MySQL connections
+    if MYSQL_CONFIGS:
+        for name, config in MYSQL_CONFIGS.items():
+            connections["mysql"][name] = {
+                "name": name,
+                "type": "mysql",
+                "config": mask_config(config),
+                "is_default": False
+            }
+    # Check if default MySQL config is set
+    if MYSQL_CONFIG.get("host"):
+        connections["mysql"]["default"] = {
+            "name": "default",
+            "type": "mysql",
+            "config": mask_config(MYSQL_CONFIG),
+            "is_default": True
+        }
+
+    # PostgreSQL connections
+    if PG_CONFIGS:
+        for name, config in PG_CONFIGS.items():
+            connections["postgres"][name] = {
+                "name": name,
+                "type": "postgres",
+                "config": mask_config(config),
+                "is_default": False
+            }
+    # Check if default PostgreSQL config is set
+    if PG_CONFIG.get("host"):
+        connections["postgres"]["default"] = {
+            "name": "default",
+            "type": "postgres",
+            "config": mask_config(PG_CONFIG),
+            "is_default": True
+        }
+
+    # MS SQL Server connections
+    if MSSQL_CONFIGS:
+        for name, config in MSSQL_CONFIGS.items():
+            connections["mssql"][name] = {
+                "name": name,
+                "type": "mssql",
+                "config": mask_config(config),
+                "is_default": False
+            }
+    # Check if default MSSQL config is set
+    if MSSQL_CONFIG.get("server"):
+        connections["mssql"]["default"] = {
+            "name": "default",
+            "type": "mssql",
+            "config": mask_config(MSSQL_CONFIG),
+            "is_default": True
+        }
+
+    # Count total connections
+    total_connections = sum(len(v) for v in connections.values())
+
+    # Build summary
+    summary = {
+        "total_connections": total_connections,
+        "by_type": {
+            "oracle": len(connections["oracle"]),
+            "mysql": len(connections["mysql"]),
+            "postgres": len(connections["postgres"]),
+            "mssql": len(connections["mssql"])
+        }
+    }
+
+    return {
+        "status": "success",
+        "summary": summary,
+        "connections": connections
+    }
 
 @app.get("/mysql/sample")
 async def mysql_sample(_: bool = Depends(verify_api_key), server: str | None = Query(None)):

@@ -144,6 +144,27 @@ MYSQL_CONFIGS={"primary":{"host":"db1","port":3306,"db":"mydb","user":"user1","p
 GET /health
 ```
 
+### List Available Connections
+```bash
+GET /connections
+```
+
+Discover all configured database connections:
+```json
+{
+  "status": "success",
+  "summary": {
+    "total_connections": 5,
+    "by_type": {"oracle": 2, "mysql": 2, "postgres": 1, "mssql": 0}
+  },
+  "connections": {
+    "oracle": {"yustart": {...}, "eclass": {...}},
+    "mysql": {"Early Alerts": {...}, "default": {...}},
+    ...
+  }
+}
+```
+
 ### Get Single Record
 ```bash
 POST /getRecord
@@ -188,6 +209,7 @@ Returns:
 ## Documentation
 
 - **[DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)** - Complete Docker guide
+- **[CONNECTIONS_API.md](CONNECTIONS_API.md)** - Connections endpoint docs
 - **[GET_RECORD_API.md](GET_RECORD_API.md)** - getRecord endpoint docs
 - **[SQL_EXEC_API.md](SQL_EXEC_API.md)** - sqlExec endpoint docs
 - **[ORACLE_SETUP.md](ORACLE_SETUP.md)** - Oracle configuration guide
