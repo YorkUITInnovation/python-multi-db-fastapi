@@ -1,18 +1,23 @@
 # YorkU Multi-DB FastAPI
 
-A production-ready FastAPI application that connects to Oracle, MySQL, MS SQL, and PostgreSQL with environment-based configuration, API key authentication, and advanced query capabilities.
+A production-ready FastAPI application with **complete CRUD operations** across Oracle, MySQL, PostgreSQL, and MS SQL Server. Features environment-based configuration, API key authentication, and advanced query capabilities.
 
 ## Features
 - 🔌 **Multi-Database Support**: Oracle, MySQL, PostgreSQL, MS SQL Server
 - 🔐 **API Key Authentication**: Secure endpoints with header-based auth
-- 📊 **Two Query Modes**:
-  - `getRecord`: Single record retrieval with exact match validation
+- 📊 **Complete CRUD Operations**:
+  - `getRecord`: Read single record with exact match validation
+  - `insertRecord`: Create new records with automatic SQL generation
+  - `updateRecord`: Update records with mandatory WHERE clause
+  - `deleteRecord`: Delete records with mandatory WHERE clause
   - `sqlExec`: Custom SQL with pagination (up to 300 records/page)
 - 🔄 **Universal Parameter Syntax**: Use `:param` for all databases (auto-converts)
 - 📄 **Full Pagination**: Includes total records, total pages, and navigation
+- 🔍 **Connection Discovery**: List all available database connections
 - 🐳 **Docker Ready**: Complete containerization with Oracle Instant Client
 - 📝 **Interactive Docs**: Swagger UI and ReDoc (DEV mode)
 - 🏥 **Health Checks**: Built-in monitoring endpoints
+- 🔒 **SQL Injection Protection**: Parameterized queries for all operations
 
 ## Quick Start
 
@@ -177,6 +182,77 @@ POST /getRecord
 }
 ```
 
+### Insert Record
+```bash
+POST /insertRecord
+{
+  "dbtype": "mysql",
+  "table": "users",
+  "data": {
+    "username": "johndoe",
+    "email": "john@example.com",
+    "firstname": "John",
+    "lastname": "Doe"
+  }
+}
+```
+
+Returns:
+```json
+{
+  "status": "success",
+  "rows_affected": 1,
+  "inserted_id": 12345,
+  "message": "Successfully inserted 1 record(s)"
+}
+```
+
+### Update Record
+```bash
+POST /updateRecord
+{
+  "dbtype": "mysql",
+  "table": "users",
+  "data": {
+    "email": "newemail@example.com",
+    "status": "active"
+  },
+  "where": {
+    "user_id": 12345
+  }
+}
+```
+
+Returns:
+```json
+{
+  "status": "success",
+  "rows_affected": 1,
+  "message": "Successfully updated 1 record(s)"
+}
+```
+
+### Delete Record
+```bash
+POST /deleteRecord
+{
+  "dbtype": "mysql",
+  "table": "users",
+  "where": {
+    "user_id": 12345
+  }
+}
+```
+
+Returns:
+```json
+{
+  "status": "success",
+  "rows_affected": 1,
+  "message": "Successfully deleted 1 record(s)"
+}
+```
+
 ### Execute Custom SQL
 ```bash
 POST /sqlExec
@@ -208,10 +284,13 @@ Returns:
 
 ## Documentation
 
+- **[COMPLETE_CRUD_SUMMARY.md](COMPLETE_CRUD_SUMMARY.md)** - Complete CRUD operations overview
 - **[DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)** - Complete Docker guide
 - **[CONNECTIONS_API.md](CONNECTIONS_API.md)** - Connections endpoint docs
 - **[GET_RECORD_API.md](GET_RECORD_API.md)** - getRecord endpoint docs
+- **[INSERT_UPDATE_API.md](INSERT_UPDATE_API.md)** - insertRecord, updateRecord, and deleteRecord docs
 - **[SQL_EXEC_API.md](SQL_EXEC_API.md)** - sqlExec endpoint docs
+- **[BUILD_GUIDE.md](BUILD_GUIDE.md)** - Multi-architecture Docker builds
 - **[ORACLE_SETUP.md](ORACLE_SETUP.md)** - Oracle configuration guide
 - **[DEBUGGING.md](DEBUGGING.md)** - Troubleshooting guide
 

@@ -356,6 +356,436 @@ async def get_record(request: GetRecordRequest, _: bool = Depends(verify_api_key
         if db:
             db.close()
 
+# Pydantic models for insertRecord endpoint
+class InsertRecordRequest(BaseModel):
+    dbtype: str = Field(..., description="Database type: oracle, mysql, postgres, or mssql")
+    server: Optional[str] = Field(None, description="Server name from config (optional if only one server configured)")
+    table: str = Field(..., description="Table name to insert into")
+    data: Dict[str, Any] = Field(..., description="Column-value pairs to insert, e.g., {'username': 'john', 'email': 'john@example.com'}")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "dbtype": "mysql",
+                "server": "default",
+                "table": "users",
+                "data": {
+                    "username": "johndoe",
+                    "email": "john@example.com",
+                    "firstname": "John",
+                    "lastname": "Doe"
+                }
+            }
+        }
+
+@app.post("/insertRecord")
+async def insert_record(request: InsertRecordRequest, _: bool = Depends(verify_api_key)):
+    """
+    Insert a single record into any database.
+
+    Parameters:
+    - dbtype: Database type (oracle, mysql, postgres, mssql)
+    - server: Server name from config (optional if only one configured)
+    - table: Table name
+    - data: Column-value pairs to insert
+
+    Returns the number of rows affected and optionally the inserted ID (for databases that support it).
+    """
+
+    # Validate dbtype
+    dbtype = request.dbtype.lower()
+    if dbtype not in ["oracle", "mysql", "postgres", "mssql"]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid dbtype '{request.dbtype}'. Must be one of: oracle, mysql, postgres, mssql"
+        )
+
+    if not request.data:
+        raise HTTPException(status_code=400, detail="Data dictionary cannot be empty")
+
+    # Build INSERT statement
+    columns = list(request.data.keys())
+    values = list(request.data.values())
+
+    # Create placeholders based on database type
+    if dbtype == "oracle":
+        placeholders = [f":{i}" for i in range(1, len(columns) + 1)]
+    elif dbtype in ["mysql", "postgres"]:
+        placeholders = ["%s"] * len(columns)
+    elif dbtype == "mssql":
+        placeholders = ["?"] * len(columns)
+
+    # Build SQL
+    columns_str = ", ".join(columns)
+    placeholders_str = ", ".join(placeholders)
+    sql = f"INSERT INTO {request.table} ({columns_str}) VALUES ({placeholders_str})"
+
+    logger.info(f"insertRecord: dbtype={dbtype}, server={request.server}, table={request.table}")
+    logger.debug(f"SQL: {sql}")
+    logger.debug(f"Values: {values}")
+
+    # Execute insert based on database type
+    db = None
+    try:
+        if dbtype == "oracle":
+            from .db_oracle import OracleDB
+            cfg = get_oracle_config(request.server)
+            db = OracleDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            cursor.close()
+
+            return {
+                "status": "success",
+                "dbtype": dbtype,
+                "server": request.server or "default",
+                "table": request.table,
+                "rows_affected": rows_affected,
+                "message": f"Successfully inserted {rows_affected} record(s)"
+            }
+
+        elif dbtype == "mysql":
+            cfg = get_mysql_config(request.server)
+            db = MySQLDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            last_id = cursor.lastrowid
+            cursor.close()
+
+            result = {
+                "status": "success",
+                "dbtype": dbtype,
+                "server": request.server or "default",
+                "table": request.table,
+                "rows_affected": rows_affected,
+                "message": f"Successfully inserted {rows_affected} record(s)"
+            }
+            if last_id:
+                result["inserted_id"] = last_id
+            return result
+
+        elif dbtype == "postgres":
+            cfg = get_pg_config(request.server)
+            db = PostgresDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            cursor.close()
+
+            return {
+                "status": "success",
+                "dbtype": dbtype,
+                "server": request.server or "default",
+                "table": request.table,
+                "rows_affected": rows_affected,
+                "message": f"Successfully inserted {rows_affected} record(s)"
+            }
+
+        elif dbtype == "mssql":
+            from .db_mssql import MSSQLDB
+            cfg = get_mssql_config(request.server)
+            db = MSSQLDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            cursor.close()
+
+            return {
+                "status": "success",
+                "dbtype": dbtype,
+                "server": request.server or "default",
+                "table": request.table,
+                "rows_affected": rows_affected,
+                "message": f"Successfully inserted {rows_affected} record(s)"
+            }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"insertRecord error: {e}")
+        if db and hasattr(db, 'conn') and db.conn:
+            db.conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Insert failed: {str(e)}")
+    finally:
+        if db:
+            db.close()
+
+# Pydantic models for updateRecord endpoint
+class UpdateRecordRequest(BaseModel):
+    dbtype: str = Field(..., description="Database type: oracle, mysql, postgres, or mssql")
+    server: Optional[str] = Field(None, description="Server name from config (optional if only one server configured)")
+    table: str = Field(..., description="Table name to update")
+    data: Dict[str, Any] = Field(..., description="Column-value pairs to update, e.g., {'email': 'newemail@example.com', 'status': 'active'}")
+    where: Dict[str, Any] = Field(..., description="WHERE conditions as key-value pairs, e.g., {'user_id': 12345}")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "dbtype": "mysql",
+                "server": "default",
+                "table": "users",
+                "data": {
+                    "email": "newemail@example.com",
+                    "status": "active"
+                },
+                "where": {
+                    "user_id": 12345
+                }
+            }
+        }
+
+@app.post("/updateRecord")
+async def update_record(request: UpdateRecordRequest, _: bool = Depends(verify_api_key)):
+    """
+    Update record(s) in any database.
+
+    Parameters:
+    - dbtype: Database type (oracle, mysql, postgres, mssql)
+    - server: Server name from config (optional if only one configured)
+    - table: Table name
+    - data: Column-value pairs to update
+    - where: WHERE conditions to identify which records to update
+
+    Returns the number of rows affected.
+    WARNING: This can update multiple records if the WHERE clause matches multiple rows.
+    """
+
+    # Validate dbtype
+    dbtype = request.dbtype.lower()
+    if dbtype not in ["oracle", "mysql", "postgres", "mssql"]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid dbtype '{request.dbtype}'. Must be one of: oracle, mysql, postgres, mssql"
+        )
+
+    if not request.data:
+        raise HTTPException(status_code=400, detail="Data dictionary cannot be empty")
+
+    if not request.where:
+        raise HTTPException(status_code=400, detail="WHERE conditions cannot be empty (to prevent updating all records)")
+
+    # Build UPDATE statement
+    set_columns = list(request.data.keys())
+    set_values = list(request.data.values())
+    where_columns = list(request.where.keys())
+    where_values = list(request.where.values())
+
+    # All values combined for parameterized query
+    all_values = set_values + where_values
+
+    # Build SET clause with appropriate placeholders
+    if dbtype == "oracle":
+        set_parts = [f"{col} = :{i}" for i, col in enumerate(set_columns, 1)]
+        where_parts = [f"{col} = :{i}" for i, col in enumerate(where_columns, len(set_columns) + 1)]
+    elif dbtype in ["mysql", "postgres"]:
+        set_parts = [f"{col} = %s" for col in set_columns]
+        where_parts = [f"{col} = %s" for col in where_columns]
+    elif dbtype == "mssql":
+        set_parts = [f"{col} = ?" for col in set_columns]
+        where_parts = [f"{col} = ?" for col in where_columns]
+
+    # Build SQL
+    set_clause = ", ".join(set_parts)
+    where_clause = " AND ".join(where_parts)
+    sql = f"UPDATE {request.table} SET {set_clause} WHERE {where_clause}"
+
+    logger.info(f"updateRecord: dbtype={dbtype}, server={request.server}, table={request.table}")
+    logger.debug(f"SQL: {sql}")
+    logger.debug(f"Values: {all_values}")
+
+    # Execute update based on database type
+    db = None
+    try:
+        if dbtype == "oracle":
+            from .db_oracle import OracleDB
+            cfg = get_oracle_config(request.server)
+            db = OracleDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(all_values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            cursor.close()
+
+        elif dbtype == "mysql":
+            cfg = get_mysql_config(request.server)
+            db = MySQLDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(all_values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            cursor.close()
+
+        elif dbtype == "postgres":
+            cfg = get_pg_config(request.server)
+            db = PostgresDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(all_values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            cursor.close()
+
+        elif dbtype == "mssql":
+            from .db_mssql import MSSQLDB
+            cfg = get_mssql_config(request.server)
+            db = MSSQLDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(all_values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            cursor.close()
+
+        return {
+            "status": "success",
+            "dbtype": dbtype,
+            "server": request.server or "default",
+            "table": request.table,
+            "rows_affected": rows_affected,
+            "message": f"Successfully updated {rows_affected} record(s)"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"updateRecord error: {e}")
+        if db and hasattr(db, 'conn') and db.conn:
+            db.conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Update failed: {str(e)}")
+    finally:
+        if db:
+            db.close()
+
+# Pydantic models for deleteRecord endpoint
+class DeleteRecordRequest(BaseModel):
+    dbtype: str = Field(..., description="Database type: oracle, mysql, postgres, or mssql")
+    server: Optional[str] = Field(None, description="Server name from config (optional if only one server configured)")
+    table: str = Field(..., description="Table name to delete from")
+    where: Dict[str, Any] = Field(..., description="WHERE conditions as key-value pairs, e.g., {'user_id': 12345}")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "dbtype": "mysql",
+                "server": "default",
+                "table": "users",
+                "where": {
+                    "user_id": 12345
+                }
+            }
+        }
+
+@app.post("/deleteRecord")
+async def delete_record(request: DeleteRecordRequest, _: bool = Depends(verify_api_key)):
+    """
+    Delete record(s) from any database.
+
+    Parameters:
+    - dbtype: Database type (oracle, mysql, postgres, mssql)
+    - server: Server name from config (optional if only one configured)
+    - table: Table name
+    - where: WHERE conditions to identify which records to delete
+
+    Returns the number of rows affected.
+    WARNING: This can delete multiple records if the WHERE clause matches multiple rows.
+    """
+
+    # Validate dbtype
+    dbtype = request.dbtype.lower()
+    if dbtype not in ["oracle", "mysql", "postgres", "mssql"]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid dbtype '{request.dbtype}'. Must be one of: oracle, mysql, postgres, mssql"
+        )
+
+    if not request.where:
+        raise HTTPException(status_code=400, detail="WHERE conditions cannot be empty (to prevent deleting all records)")
+
+    # Build DELETE statement
+    where_columns = list(request.where.keys())
+    where_values = list(request.where.values())
+
+    # Build WHERE clause with appropriate placeholders
+    if dbtype == "oracle":
+        where_parts = [f"{col} = :{i}" for i, col in enumerate(where_columns, 1)]
+    elif dbtype in ["mysql", "postgres"]:
+        where_parts = [f"{col} = %s" for col in where_columns]
+    elif dbtype == "mssql":
+        where_parts = [f"{col} = ?" for col in where_columns]
+
+    # Build SQL
+    where_clause = " AND ".join(where_parts)
+    sql = f"DELETE FROM {request.table} WHERE {where_clause}"
+
+    logger.info(f"deleteRecord: dbtype={dbtype}, server={request.server}, table={request.table}")
+    logger.debug(f"SQL: {sql}")
+    logger.debug(f"Values: {where_values}")
+
+    # Execute delete based on database type
+    db = None
+    try:
+        if dbtype == "oracle":
+            from .db_oracle import OracleDB
+            cfg = get_oracle_config(request.server)
+            db = OracleDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(where_values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            cursor.close()
+
+        elif dbtype == "mysql":
+            cfg = get_mysql_config(request.server)
+            db = MySQLDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(where_values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            cursor.close()
+
+        elif dbtype == "postgres":
+            cfg = get_pg_config(request.server)
+            db = PostgresDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(where_values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            cursor.close()
+
+        elif dbtype == "mssql":
+            from .db_mssql import MSSQLDB
+            cfg = get_mssql_config(request.server)
+            db = MSSQLDB(cfg)
+            cursor = db.conn.cursor()
+            cursor.execute(sql, tuple(where_values))
+            db.conn.commit()
+            rows_affected = cursor.rowcount
+            cursor.close()
+
+        return {
+            "status": "success",
+            "dbtype": dbtype,
+            "server": request.server or "default",
+            "table": request.table,
+            "rows_affected": rows_affected,
+            "message": f"Successfully deleted {rows_affected} record(s)"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"deleteRecord error: {e}")
+        if db and hasattr(db, 'conn') and db.conn:
+            db.conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Delete failed: {str(e)}")
+    finally:
+        if db:
+            db.close()
+
 # Pydantic model for sqlExec endpoint
 class SqlExecRequest(BaseModel):
     dbtype: str = Field(..., description="Database type: oracle, mysql, postgres, or mssql")
