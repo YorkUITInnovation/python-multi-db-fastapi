@@ -13,17 +13,41 @@ _thick_mode_error = None
 try:
     # Check if ORACLE_CLIENT_LIB environment variable is set
     lib_dir = os.getenv("ORACLE_CLIENT_LIB")
+    logger.info(f"Oracle Client Library Path from env: {lib_dir}")
+
+    # Check if directory exists
     if lib_dir:
+        if os.path.exists(lib_dir):
+            logger.info(f"Oracle client directory exists: {lib_dir}")
+            # List files in the directory for debugging
+            try:
+                files = os.listdir(lib_dir)
+                logger.info(f"Files in Oracle client directory: {files[:10]}")  # Show first 10 files
+            except Exception as list_error:
+                logger.warning(f"Could not list files in {lib_dir}: {list_error}")
+        else:
+            logger.error(f"Oracle client directory does NOT exist: {lib_dir}")
+
+    # Try to initialize thick mode
+    if lib_dir:
+        logger.info(f"Attempting to initialize Oracle client in thick mode with lib_dir={lib_dir}")
         oracledb.init_oracle_client(lib_dir=lib_dir)
     else:
+        logger.info("Attempting to initialize Oracle client in thick mode (no lib_dir specified)")
         oracledb.init_oracle_client()
+
     _thick_mode_initialized = True
-    logger.info("Oracle client initialized in thick mode")
+    logger.info("✓ Oracle client successfully initialized in THICK mode")
+    logger.info(f"Oracle client version: {oracledb.clientversion()}")
 except Exception as e:
     _thick_mode_error = str(e)
-    logger.warning(f"Oracle thick mode not available: {e}")
-    logger.warning("Using thin mode - some older Oracle password types may not be supported")
-    logger.info("To enable thick mode, install Oracle Instant Client and set ORACLE_CLIENT_LIB environment variable")
+    logger.error(f"✗ Oracle thick mode initialization FAILED: {e}")
+    logger.error(f"Error type: {type(e).__name__}")
+    logger.warning("Using THIN mode - some older Oracle password types may not be supported")
+    logger.info("To enable thick mode:")
+    logger.info("  1. Ensure Oracle Instant Client is installed in the container")
+    logger.info("  2. Set ORACLE_CLIENT_LIB environment variable to the lib directory")
+    logger.info(f"  3. Current ORACLE_CLIENT_LIB: {lib_dir}")
 
 class OracleDB:
     def __init__(self, config: Dict[str, Any]):

@@ -10,7 +10,7 @@ set -e
 # ============================================================================
 
 # Docker Hub username (REQUIRED - update this!)
-DOCKER_USERNAME="your-dockerhub-username"
+DOCKER_USERNAME="uitadmin"
 
 # Image name (update if needed)
 IMAGE_NAME="yorku-multi-db-api"
