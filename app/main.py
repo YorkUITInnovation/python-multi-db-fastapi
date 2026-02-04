@@ -325,25 +325,28 @@ async def get_record(request: GetRecordRequest, _: bool = Depends(verify_api_key
             db = MSSQLDB(cfg)
             rows = db.query(sql, tuple(params))
 
-        # Validate result: must be exactly one record
+        # Validate result: expect at least one record
         if len(rows) == 0:
             raise HTTPException(
                 status_code=404,
                 detail="No record found matching the specified parameters"
             )
-        elif len(rows) > 1:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Multiple records found ({len(rows)} records). Expected only one record. Please refine your parameters."
+
+        multiple_records = len(rows) > 1
+        if multiple_records:
+            logger.warning(
+                "getRecord warning: multiple records found (%d) for table %s on %s",
+                len(rows), request.table, request.server or "default"
             )
 
-        # Return the single record
+        # Return the single (first) record
         return {
             "status": "success",
             "dbtype": dbtype,
             "server": request.server or "default",
             "table": request.table,
-            "record": rows[0]
+            "record": rows[0],
+            "multiple_records": multiple_records
         }
 
     except HTTPException:
